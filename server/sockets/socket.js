@@ -30,6 +30,7 @@ io.on('connection', (client) => {
         // client.broadcast.to(data.sala).emit('listaPersona', usuarios.getPersonas())
 
         client.broadcast.to(data.sala).emit('listaPersona', usuarios.getPersonasPorSala(data.sala))
+        client.broadcast.to(data.sala).emit('crearMensaje', crearMensaje('Admin', `${data.nombre} se unio`))
 
         callback(usuarios.getPersonasPorSala(data.sala)) // esta linea esta mal
         
@@ -38,12 +39,15 @@ io.on('connection', (client) => {
 
     })
 
-    client.on('crearMensaje', function (data) {
+    client.on('crearMensaje', function (data, callback) {
         let persona = usuarios.getPersona(client.id)
 
         let mensaje = crearMensaje(persona.nombre, data.mensaje)
         
         client.broadcast.to(persona.sala).emit('crearMensaje', mensaje)
+        
+
+        callback( mensaje )
     })
 
     client.on('disconnect', () => {

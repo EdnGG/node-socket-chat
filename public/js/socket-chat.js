@@ -1,26 +1,30 @@
-var socket = io();
+var socket = io(); 
 
-var params = new URLSearchParams(window.location.search)
+// var jqueryUsuarios = require('./socket-chat-jquery')
+
+var params = new URLSearchParams(window.location.search);
 
 if (!params.has('nombre') || !params.has('sala')) {
-    // console.log('hey')
-    window.location = 'index.html'
-    throw new Error('Name and room are required')
+    window.location = 'index.html';
+    throw new Error('El nombre y sala son necesarios');
 }
 
 var usuario = {
     nombre: params.get('nombre'),
     sala: params.get('sala')
+};
 
-}
+
 
 socket.on('connect', function() {
     console.log('Conectado al servidor');
 
-    socket.emit('entrarChat', usuario , function(resp) {
-        console.log('Usuarios conectados: ', resp)
-        // console.log(''resp)
-    })
+    socket.emit('entrarChat', usuario, function(resp) {
+        console.log('Usuarios conectados: ', resp);
+        // jqueryUsuarios.renderizarUsuarios(resp)
+        renderizarUsuarios(resp) // "resp" es un array
+    });
+
 });
 
 // escuchar
@@ -30,32 +34,32 @@ socket.on('disconnect', function() {
 
 });
 
- 
+
 // Enviar información
 // socket.emit('crearMensaje', {
-//     usuario: 'Fernando',
+//     nombre: 'Fernando',
 //     mensaje: 'Hola Mundo'
 // }, function(resp) {
 //     console.log('respuesta server: ', resp);
 // });
 
 // Escuchar información
-socket.on('crearMensaje', function(mensaje) {
-
-    console.log('Servidor:', mensaje);
-
+socket.on('crearMensaje', function (mensaje) {
+    renderizarMensajes(mensaje, false)
+    scrollBottom()
+    // console.log('Servidor:', mensaje);
 });
 
-// Escuchar cambios cuando usurio entra o sale del chat
-
+// Escuchar cambios de usuarios
+// cuando un usuario entra o sale del chat
 socket.on('listaPersona', function(personas) {
-
     console.log(personas);
-
+    renderizarUsuarios(personas)
 });
 
-// mensajes privados /Accion de escuchar del cliente
+// Mensajes privados
+socket.on('mensajePrivado', function(mensaje) {
 
-socket.on('mensajePrivado', function (mensaje) {
-    console.log('mensaje privado', mensaje)
-})
+    console.log('Mensaje Privado:', mensaje);
+
+});
